@@ -1,4 +1,5 @@
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -122,10 +123,12 @@ public class Minesweeper{
                     public void mousePressed(MouseEvent e) {
                         //if it's right click, flag/unflag
                         if(SwingUtilities.isRightMouseButton(e)){
-                            System.out.println("right");
+                            flag(buttonGrid);
                         }
-                        else
+                        else{
                             System.out.println("left");
+                            reveal(); //remove the button and reveal the square
+                        }
                     }
                 });
                 boardPane.add(buttonGrid[i][j]); //add the button to the board JPanel
@@ -146,5 +149,21 @@ public class Minesweeper{
 
     }
 
+    public void flag(JButton[][] button){
+        ImageIcon flag = new ImageIcon("red-flag.png");
+        System.out.println(button);
+    }
 
+    public void unflag(){
+
+    }
+
+    public boolean isflag(){
+        
+        return true;
+    }
+    //Remove the button and open the square
+    public void reveal(){
+
+    }
 }
