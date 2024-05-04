@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
+
 import javax.swing.SwingUtilities;
 import java.util.Random;
 
@@ -123,17 +125,17 @@ public class Minesweeper{
                         //if it's right click, flag/unflag
                         if(SwingUtilities.isRightMouseButton(e)){
                             //mark the button
-                            if(isflagged())
-                                unflag();
-                            else {
+                            if(isflagged(clicked)) 
+                                unflag(clicked);
+                            else 
                                 flag(clicked);
-                                System.out.println("Mark");
-                            }
                         }
                         else{
                             int row = btnPositionRow(clicked);
                             int col = btnPositionRow(clicked);
-                            reveal(row, col); //remove the button and reveal the square
+                            //if the clicked button is not flagged
+                            if(!isflagged(clicked))
+                                reveal(row, col, clicked); //remove the button and reveal the square
                         }
                     }
                 });
@@ -172,32 +174,37 @@ public class Minesweeper{
         return 0;
     }
 
+    //mark the button
+    public void flag(JButton btn){
+        //resize the image
+        ImageIcon flag = new ImageIcon("./bin/images/red-flag.png"); // load the image to a imageIcon
+        Image image = flag.getImage(); // transform it 
+        Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+        flag = new ImageIcon(newimg);  // transform it back
+        System.out.println("marked");
+        btn.setIcon(flag);
+    }
+
+    //unmark the button
+    public void unflag(JButton btn){
+        btn.setIcon(null);
+    }
+
+    //check if the button has an Icon or not
+    public boolean isflagged(JButton btn){
+        if(btn.getIcon() == null) return false;
+        else return true;
+    }
+
+    //Remove the button and open the square
+    public void reveal(int row, int col, JButton btn){
+        btn.setVisible(false); //hide the button
+    }
+
     public void setNumber(){
 
     }
 
-    //mark the button
-    public void flag(JButton button){
-        ImageIcon flag = new ImageIcon("red-flag.png");
-        button.setIcon(flag);
-    }
-
-    //unmark the button
-    public void unflag(){
-
-    }
-
-    public boolean isflagged(){
-        
-        return false;
-    }
-
-    //Remove the button and open the square
-    public void reveal(int row, int col){
-
-    }
-
-    
     //Random number generator
     public int randNum(int min, int max){
         Random rand = new Random();
