@@ -103,9 +103,6 @@ public class Minesweeper{
         buttonGrid = new JButton[dimension][dimension]; //button grid
         board = new int[dimension][dimension]; //Game board to keep track of numbers and mines
         
-        /* TO-DO
-            - Organize the code (Duplicated button grid)
-        */
         //while(mines != 0){}
         for(int i = 0; i < dimension; i++){
             for(int j = 0; j < dimension ; j++){
@@ -121,13 +118,22 @@ public class Minesweeper{
                 buttonGrid[i][j].addMouseListener(new MouseAdapter() {
                     @Override //Button Mouse Listener
                     public void mousePressed(MouseEvent e) {
+                        JButton clicked = (JButton) e.getSource();
+
                         //if it's right click, flag/unflag
                         if(SwingUtilities.isRightMouseButton(e)){
-                            flag(buttonGrid);
+                            //mark the button
+                            if(isflagged())
+                                unflag();
+                            else {
+                                flag(clicked);
+                                System.out.println("Mark");
+                            }
                         }
                         else{
-                            System.out.println("left");
-                            reveal(); //remove the button and reveal the square
+                            int row = btnPositionRow(clicked);
+                            int col = btnPositionRow(clicked);
+                            reveal(row, col); //remove the button and reveal the square
                         }
                     }
                 });
@@ -139,31 +145,63 @@ public class Minesweeper{
         pane.add(boardPane);
     }
 
-    //Random number generator
-    public int randNum(int min, int max){
-        Random rand = new Random();
-        return rand.nextInt(max) + min;
-    }  
+    /* TO-DO
+        - Organize the code (Maybe just two return value in one function using like vector or list)
+    */
+    //Find the coordinate(row) of the clicked button
+    public int btnPositionRow(JButton btn){
+        for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                if(buttonGrid[i][j] == btn){
+                    return i; //return row
+                }
+            }
+        }
+        return 0;
+    }
+
+    //Find the coordinate(column) of the clicked button
+    public int btnPositionCol(JButton btn){
+        for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                if(buttonGrid[i][j] == btn){
+                    return j; //return column
+                }
+            }
+        }
+        return 0;
+    }
 
     public void setNumber(){
 
     }
 
-    public void flag(JButton[][] button){
+    //mark the button
+    public void flag(JButton button){
         ImageIcon flag = new ImageIcon("red-flag.png");
-        System.out.println(button);
+        button.setIcon(flag);
     }
 
+    //unmark the button
     public void unflag(){
 
     }
 
-    public boolean isflag(){
+    public boolean isflagged(){
         
-        return true;
+        return false;
     }
+
     //Remove the button and open the square
-    public void reveal(){
+    public void reveal(int row, int col){
 
     }
+
+    
+    //Random number generator
+    public int randNum(int min, int max){
+        Random rand = new Random();
+        return rand.nextInt(max) + min;
+    }  
+    
 }
