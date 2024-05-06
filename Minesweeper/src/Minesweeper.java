@@ -35,7 +35,7 @@ public class Minesweeper{
     private JButton[][] buttonGrid;
     private int X = 0;
     private int Y = X;
-    private int width = 50;
+    private int width = 40;
     private int height = width;
 
     /* TO-DO
@@ -49,9 +49,7 @@ public class Minesweeper{
         pane.setBorder(new EmptyBorder(50, 50, 50, 50));
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS)); //sorts panels horizontally 
 
-        // frame.add(pane, BorderLayout.CENTER);
         frame.add(pane);
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Minesweeper Game");
         
@@ -85,9 +83,6 @@ public class Minesweeper{
         //Initiallize the game board
         createBoard(dimension);
 
-        //Set the numbers around the mine
-        setNumber();
-
         //Final setup for the main Frame
         frame.setResizable(false);
         frame.setMaximumSize(frameSize);
@@ -109,67 +104,47 @@ public class Minesweeper{
     public void createBoard(int dimension){
         boardPane = new JLayeredPane();
         boardPane.setPreferredSize(boardSize); //set the board size
-        // boardPane.setBounds(0, 0, 300, 300);
-       
-        
-    
+
         buttonGrid = new JButton[dimension][dimension]; //button grid
         board = new int[dimension][dimension]; //Game board to keep track of numbers and mines
         setNumber();
 
+        for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                System.out.print(board[i][j] + ",");
+            }
+            System.out.println("");
+        }
         for(int i = 0; i < dimension; i++){
             for(int j = 0; j < dimension ; j++){
                 setLabel(i, j);
+                setButton(i, j);
                 
-                buttonGrid[i][j] = new JButton();
-                // buttonGrid[i][j].setHorizontalAlignment(SwingConstants.VERTICAL);
-                buttonGrid[i][j].addMouseListener(new MouseAdapter() {
-                    @Override //Button Mouse Listener
-                    public void mousePressed(MouseEvent e) {
-                        JButton clicked = (JButton) e.getSource();
-
-                        //if it's right click, flag/unflag
-                        if(SwingUtilities.isRightMouseButton(e)){
-                            //mark the button
-                            if(isflagged(clicked)) 
-                                unflag(clicked);
-                            else 
-                                flag(clicked);
-                        }
-                        else{
-                            int row = btnPositionRow(clicked);
-                            int col = btnPositionRow(clicked);
-                            //if the clicked button is not flagged
-                            if(!isflagged(clicked))
-                                reveal(row, col, clicked); //remove the button and reveal the square
-                        }
-                    }
-                });
-                buttonGrid[i][j].setBounds(X, Y, width, height);
-                boardPane.add(buttonGrid[i][j], JLayeredPane.PALETTE_LAYER); //add the button to the board JPanel
-                // boardPane.setComponentZOrder(buttonGrid[i][j], 1);
                 X += width; //increase x 
             }
             Y += width; //increase y
             X = 0; //set x to 0 because this is a new line
         }
-
         //add the Game Board Panel to the Main Panel
         pane.add(boardPane);
     }
 
-    //Create mines on the board
+
+    //Create labels on the board
     public boolean setLabel(int row, int col){
         //resize the image
-        ImageIcon mine = new ImageIcon("./bin/images/mine.png"); // load the image to a imageIcon
+        ImageIcon mine = new ImageIcon("Minesweeper/bin/images/mine.png"); // load the image to a imageIcon
         Image image = mine.getImage(); // transform it 
         Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
         mine = new ImageIcon(newimg);  // transform it back
 
         JLabel Mine;
-        if(board[row][col] == 1000){
+        if(board[row][col] == 1000){ //if it's bomb
             Mine = new JLabel(mine, SwingConstants.CENTER);
         }
+        // else if(board[row][col] == 0){  //if it's 0/empty
+        //     Mine = new JLabel("",SwingConstants.CENTER);
+        // }
         else
             Mine = new JLabel(String.valueOf(board[row][col]), SwingConstants.CENTER);
             
@@ -177,6 +152,37 @@ public class Minesweeper{
         boardPane.add(Mine, JLayeredPane.DEFAULT_LAYER);
             
         return false;
+    }
+
+    //Create buttons on the board 
+    public void setButton(int row, int col){
+        buttonGrid[row][col] = new JButton();
+        // buttonGrid[i][j].setHorizontalAlignment(SwingConstants.VERTICAL);
+        buttonGrid[row][col].addMouseListener(new MouseAdapter() {
+            @Override //Button Mouse Listener
+            public void mousePressed(MouseEvent e) {
+                JButton clicked = (JButton) e.getSource();
+
+                //if it's right click, flag/unflag
+                if(SwingUtilities.isRightMouseButton(e)){
+                    //mark the button
+                    if(isflagged(clicked)) 
+                        unflag(clicked);
+                    else 
+                        flag(clicked);
+                }
+                else{
+                    int row = btnPositionRow(clicked);
+                    int col = btnPositionCol(clicked);
+
+                    //if the clicked button is not flagged
+                    if(!isflagged(clicked))
+                        reveal(row, col, clicked); //remove the button and reveal the square
+                }
+            }
+        });
+        buttonGrid[row][col].setBounds(X, Y, width, height);
+        boardPane.add(buttonGrid[row][col], JLayeredPane.PALETTE_LAYER); //add the button to the board JPanel
     }
 
     /* TO-DO
@@ -209,7 +215,7 @@ public class Minesweeper{
     //mark the button
     public void flag(JButton btn){
         //resize the image
-        ImageIcon flag = new ImageIcon("./bin/images/red-flag.png"); // load the image to a imageIcon
+        ImageIcon flag = new ImageIcon("Minesweeper/bin/images/red-flag.png"); // load the image to a imageIcon
         Image image = flag.getImage(); // transform it 
         Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
         flag = new ImageIcon(newimg);  // transform it back
@@ -231,18 +237,37 @@ public class Minesweeper{
 
     //Remove the button and open the square
     public void reveal(int row, int col, JButton btn){
-        btn.setVisible(false); //hide the button
+        int clicked = board[row][col];
+        //if the clicked cell is 1000, game over
+        if(clicked == 1000){
+            gameEnd(false);
+            btn.setVisible(false);
+        }
+        else //open cells 
+            openEmpty(row, col, btn);
     }
 
+    public void gameEnd(boolean win){
+        if(win)
+            System.out.println("You Won!");
+        else
+            System.out.println("Game Over");
+    }
+
+    /* TO-DO
+        - Number of Mines are wrong. Fix the loop
+    */
     //Create mines on the board
     public void setMines(){
         int newMineNum = mines;
+
         //loop through until all mines are created
-        while(newMineNum > 0){
-            for(int i = 0; i < dimension; ++i){
-                for(int j = 0; j < dimension; ++j){
-                    if(randNum(0,5) == 3){
-                        board[i][j] = 1000; //mines are indicated as "0"
+        for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                if(newMineNum == 0) return;
+                if(randNum(0,10) == 3){
+                    if(board[i][j] != 1000){
+                        board[i][j] = 1000; //mines are indicated as "1000"
                         newMineNum--;
                     }
                 }
@@ -250,27 +275,56 @@ public class Minesweeper{
         }
     }
 
-    //Check how many mines are nearby
+    /*
+        Check how many mines are nearby.
+        Algorithm: Check row - 1, row, row + 1; Check col - 1, col, col + 1. Therefore, starting from row - 1, loop through each cells
+        if row - 1/ col - 1 is negative, that means row / col is 0. So don't check the previous row / col
+        if row + 1 / col + 1 is greater than the dimension, that means row / col is at the dimension. So don't check the next row / col
+    */
     public int checkMines(int row, int col){
-        //Check if the cell is in the corner (row = 0, col = 0, row = dimension, col = dimension)
-        if(row == 0){
-            if(col == 0){
+        int rowMin = row - 1;
+        int colMin = col - 1;
+        int rowMax = row + 1;
+        int colMax = col + 1;
 
+        int numOfMines = 0;
+        if(rowMin < 0) rowMin = row;
+        if(colMin < 0) colMin = col;
+        if(rowMax == dimension) rowMax = row;
+        if(colMax == dimension) colMax = col;
+
+        for(int i = rowMin; i < rowMax + 1; ++i){
+            for(int j = colMin; j < colMax +1; ++j){
+                if(board[i][j] == 1000){
+                    numOfMines++;
+                }
             }
         }
-        else if(row == dimension){
+        
+        return numOfMines;
+    }
 
-        }
-        else if(col == 0){
+    public void openEmpty(int row, int col, JButton btn){
+        int rowMin = row - 1;
+        int colMin = col - 1;
+        int rowMax = row + 1;
+        int colMax = col + 1;
 
-        }
-        else if(col == dimension){
+        if(rowMin < 0) rowMin = row;
+        if(colMin < 0) colMin = col;
+        if(rowMax == dimension) rowMax = row;
+        if(colMax == dimension) colMax = col;
 
-        }
-        else{
-
-        }
-        return 0;
+            for(int i = rowMin; i < rowMax + 1; ++i){
+                for(int j = colMin; j < colMax + 1; ++j){
+                    if(checkMines(i, j) == 0){
+                        btn = buttonGrid[i][j];
+                        openEmpty(i, j, btn);
+                    }
+                }
+            }
+           
+            btn.setVisible(false);
     }
 
     //Initialize the board (number) 
