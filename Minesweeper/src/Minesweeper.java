@@ -3,12 +3,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -19,10 +21,11 @@ import java.util.Random;
 public class Minesweeper{
     private JFrame frame;
     private JPanel pane; //main JPanel
-    private JPanel boardPane; //Game Board JPanel for the button array
     private JPanel menuPane; //Menu Bar JPanel (timer, number of mines/flags)
-    private Dimension paneSize = new Dimension(700, 700); //dimension for main JPanel
+    private JLayeredPane boardPane; //Game Board JPanel for the button and label array
+    private Dimension frameSize = new Dimension(700, 700); //dimension for main JPanel
     private Dimension boardSize = new Dimension(400, 400); //dimension for the game JPanel
+    private Dimension numPaneSize;
     private int[][] board;
     private int mines;
     private static int dimension; //dimension of the game board
@@ -80,7 +83,7 @@ public class Minesweeper{
 
         //Final setup for the main Frame
         frame.setResizable(false);
-        frame.setMaximumSize(paneSize);
+        frame.setMaximumSize(frameSize);
         frame.pack();
         frame.setVisible(true);
     }
@@ -97,26 +100,42 @@ public class Minesweeper{
 
     //Initiallizing the board
     public void createBoard(int dimension){
-        boardPane = new JPanel();
-        boardPane.setLayout(new GridLayout(dimension, dimension));
-        // boardPane.setBounds(0, 0, 300, 300);
+        boardPane = new JLayeredPane();
         boardPane.setPreferredSize(boardSize); //set the board size
-
+        // boardPane.setBounds(0, 0, 300, 300);
+       
+        //set bound of the child panels because the layout of JLayeredPane is null
+    
         buttonGrid = new JButton[dimension][dimension]; //button grid
         board = new int[dimension][dimension]; //Game board to keep track of numbers and mines
         
+        //position of buttons and labels 
+        int x = 0;
+        int y = 0;
+
+        //width and height of the buttons and labels
+        int width = 50;
+        int height = width;
         //while(mines != 0){}
         for(int i = 0; i < dimension; i++){
             for(int j = 0; j < dimension ; j++){
                 //if the random number is 3, place a mines
                 if(randNum(0,5) == 3){
+                    JLabel example = new JLabel("Bomb!!", SwingConstants.CENTER);
+                    example.setBounds(x, y, width, height);
+                    boardPane.add(example, JLayeredPane.DEFAULT_LAYER);
                     board[i][j] = 1; //1 is mine 
                 }
                 else{
                     board[i][j] = 0; //0 is number
-                }
+                    JLabel example = new JLabel("Safe");
+                    example.setBounds(x, y, width, height);
+                    boardPane.add(example, JLayeredPane.DEFAULT_LAYER);
 
+                    // boardPane.setComponentZOrder(example, 0);
+                }
                 buttonGrid[i][j] = new JButton();
+                // buttonGrid[i][j].setHorizontalAlignment(SwingConstants.VERTICAL);
                 buttonGrid[i][j].addMouseListener(new MouseAdapter() {
                     @Override //Button Mouse Listener
                     public void mousePressed(MouseEvent e) {
@@ -139,8 +158,13 @@ public class Minesweeper{
                         }
                     }
                 });
-                boardPane.add(buttonGrid[i][j]); //add the button to the board JPanel
+                buttonGrid[i][j].setBounds(x, y, width, height);
+                boardPane.add(buttonGrid[i][j], JLayeredPane.PALETTE_LAYER); //add the button to the board JPanel
+                // boardPane.setComponentZOrder(buttonGrid[i][j], 1);
+                x += 50; //increase x 
             }
+            y += 50; //increase y
+            x = 0; //set x to 0 because this is a new line
         }
 
         //add the Game Board Panel to the Main Panel
@@ -181,7 +205,8 @@ public class Minesweeper{
         Image image = flag.getImage(); // transform it 
         Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
         flag = new ImageIcon(newimg);  // transform it back
-        System.out.println("marked");
+        
+        //System.out.println("marked");
         btn.setIcon(flag);
     }
 
@@ -200,6 +225,7 @@ public class Minesweeper{
     public void reveal(int row, int col, JButton btn){
         btn.setVisible(false); //hide the button
     }
+
 
     public void setNumber(){
 
