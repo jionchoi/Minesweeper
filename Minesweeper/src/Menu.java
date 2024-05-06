@@ -30,7 +30,7 @@ public class Menu{
 
         frame.add(pane, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle("Minesweeper Game");
+        frame.setTitle("Minesweeper");
         frame.pack();
         frame.setVisible(true);
 
@@ -40,7 +40,7 @@ public class Menu{
         pane.add(diffLabel);
 
         //grid selector
-        String[] gridSelector = {"Easy", "Medium", "Hard", "Custom Grid"};
+        String[] gridSelector = {"Easy", "Medium", "Hard"};
         JComboBox<String> jComboBox = new JComboBox<>(gridSelector);
         jComboBox.setBounds(280, 30, 100, 30);
         selected = String.valueOf(jComboBox.getSelectedItem());
@@ -60,7 +60,6 @@ public class Menu{
         /*
         TO-DO
         - Finish the preview
-        - Finish the Custom Grid
         */
 
         //if the selected item/level is custom grid, display the custom grid setting
@@ -72,8 +71,6 @@ public class Menu{
             case "Medium":
                 break;
             case "Hard":
-                break;
-            case "Custom Grid":
                 break;
         }
 
