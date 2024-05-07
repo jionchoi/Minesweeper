@@ -185,6 +185,9 @@ public class Minesweeper{
             public void mousePressed(MouseEvent e) {
                 JButton clicked = (JButton) e.getSource();
 
+                //if the button has been disabled, nothing will happen
+                if(!clicked.isEnabled()) return;
+
                 //if it's right click, flag/unflag
                 if(SwingUtilities.isRightMouseButton(e)){
                     //mark the button
@@ -242,7 +245,6 @@ public class Minesweeper{
         Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
         flag = new ImageIcon(newimg);  // transform it back
         
-        //System.out.println("marked");
         btn.setIcon(flag);
     }
 
@@ -276,27 +278,48 @@ public class Minesweeper{
         - Display Game End Panel
     */
     public void gameEnd(boolean win){
+        
         JPanel endPane = new JPanel();
+        endPane.setLayout(new BoxLayout(endPane, BoxLayout.Y_AXIS)); //sorts panels horizontally 
+
         JLabel endLabel;
+        JButton playAgain;
+
         if(win){
             endLabel = new JLabel();
             System.out.println("Player Wins!");
-
+            playAgain = new JButton("Play Again"); //Play Again Button
         }
         else{
             endLabel = new JLabel("Game Over");
+            playAgain = new JButton("Try Again"); //Try Again Button
             System.out.println("Game Over");
         }
-
-        JButton playAgain = new JButton("Try Again"); //Play Again Button
 
         //Add JLabel and JButton to the Panel
         endPane.add(endLabel);
         endPane.add(playAgain);
         
-        endPane.setBounds(100, 100, 250, 100);
-        boardPane.add(endPane);
+       
+        endPane.setBounds(100, 100, 400, 300);
+        boardPane.add(endPane, JLayeredPane.MODAL_LAYER);
+
+        //Disable buttons
+        disableButtons();
     }
+
+    //Disable remaining buttons
+    public void disableButtons(){
+         //loop through until all mines are created
+         for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                if(buttonGrid[i][j].isVisible()){
+                    buttonGrid[i][j].setEnabled(false);
+                }
+            }
+        }
+    }
+
 
     /* TO-DO
         - Number of Mines are wrong. Fix the loop
@@ -373,9 +396,6 @@ public class Minesweeper{
             numberCell--;
         }
 
-        System.out.println(numberCell + " Cells are remaining");
-        System.out.println("Mines:" + mines);
-
         //if the number of cell is equal to the number of mines, player win
         if(numberCell == mines) gameEnd(true);
     }
@@ -425,7 +445,6 @@ public class Minesweeper{
                 }
             }
         }
-        System.out.println(test + " buttons have opened");
     } 
 
     //Check if the cell is valid
