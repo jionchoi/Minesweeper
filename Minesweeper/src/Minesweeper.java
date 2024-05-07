@@ -44,8 +44,7 @@ public class Minesweeper{
     private int height = width;
     private int numberCell; //Number of cell which is not a mine
 
-    private Queue<Integer> cell = new LinkedList<>(); //Queue for Breadth-First search for opening empty cells
-
+    private boolean[][] vis;
     /* TO-DO
         - Organize the code. Consider making a function for setting the game level 
     */
@@ -86,6 +85,7 @@ public class Minesweeper{
         //Initiallize the game board
         createBoard(dimension);
 
+        vis = new boolean[dimension][dimension];
         //Final setup for the main Frame
         frame.setResizable(false);
         frame.setMaximumSize(frameSize);
@@ -248,8 +248,6 @@ public class Minesweeper{
         }
         else //open cells 
             openCell(row, col, btn);
-
-
     }
 
     /* TO-DO
@@ -322,7 +320,6 @@ public class Minesweeper{
         }
     }   
 
-
     //Open Cells. If the selected cell is 0, check surroundings for more 0s using Queue
     public void openCell(int row, int col, JButton btn){
         btn.setVisible(false); //display the label
@@ -331,21 +328,26 @@ public class Minesweeper{
 
         //Check if the selected cell is 0
         if(selected == 0){
-             breadthSearchCell(row, col);
+            breadthSearchCell(row, col);
         }
+
         //Reduce the number of cell
         numberCell--;
-
+        System.out.println(numberCell + " cells are remaining");
         //if the number of cell is equal to the number of mines, player win
         if(numberCell == mines) gameEnd(true);
     }
 
+    /* TO-DO
+        - Fix counting (Number of Remaning Cells)
+    */
     //Breadth Search Algorithm
-    public boolean breadthSearchCell(int row, int col){
+    public void breadthSearchCell(int row, int col){
         Queue<Cell> cells = new LinkedList<>();
 
-        //Enqueue the Starting tile into the queue (Don't need to mark visited because if the cell was visited, the button will be invisible)
+        //Enqueue the Starting tile into the queue
         cells.add(new Cell(row, col));
+        vis[row][col] = true;
 
         //Until we reach "non-0 cell", while the queue is not empty
         while(!cells.isEmpty()){
@@ -355,9 +357,14 @@ public class Minesweeper{
             int x = current.row;
             int y = current.col;
 
+            System.out.println("Row: " + x + " Col: " + y);
+
             cells.remove();
             JButton btn = buttonGrid[x][y];
             btn.setVisible(false);
+
+            //Reduce the number of cell
+            numberCell--;
 
             //if the current cell is non-zero, don't check the adjacent cell
             if(board[x][y] == 0){
@@ -366,17 +373,18 @@ public class Minesweeper{
                 int[] dc = {1, -1, 0, 0, 1, -1, 1, -1};
 
                 //Check the neighbour cells
-                for(int i = 0; i < dc.length; ++i){
+                for(int i = 0; i < 4; ++i){
                     int nearX = x + dr[i];
                     int nearY = y + dc[i];
 
                     if(checkCell(nearX, nearY)){
                         cells.add(new Cell(nearX, nearY));
+                        vis[nearX][nearY] = true;
+                        System.out.println("New Cell " + nearX + ", " + nearY + " added");
                     }
                 }
             }
         }
-        return false;
     } 
 
     //Check if the cell is valid
@@ -385,7 +393,7 @@ public class Minesweeper{
         if(row < 0 || col < 0 || row > dimension - 1 || col > dimension - 1) return false;
 
         //if the cell is already visited, false
-        if(!buttonGrid[row][col].isVisible()) return false;
+        if(vis[row][col]) return false;
 
         return true;
     }
