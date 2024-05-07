@@ -1,3 +1,4 @@
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -8,11 +9,11 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import BFSTCells.Cell;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -106,6 +107,7 @@ public class Minesweeper{
     public void createBoard(int dimension){
         boardPane = new JLayeredPane();
         boardPane.setPreferredSize(boardSize); //set the board size
+        boardPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         buttonGrid = new JButton[dimension][dimension]; //button grid
         board = new int[dimension][dimension]; //Game board to keep track of numbers and mines
@@ -113,12 +115,6 @@ public class Minesweeper{
         //Create a integer board with numbers
         setNumber();
 
-        for(int i = 0; i < dimension; ++i){
-            for(int j = 0; j < dimension; ++j){
-                System.out.print(board[i][j] + ",");
-            }
-            System.out.println("");
-        }
         for(int i = 0; i < dimension; i++){
             for(int j = 0; j < dimension ; j++){
                 setLabel(i, j);
@@ -146,9 +142,9 @@ public class Minesweeper{
         if(board[row][col] == 1000){ //if it's bomb
             Mine = new JLabel(mine, SwingConstants.CENTER);
         }
-        // else if(board[row][col] == 0){  //if it's 0/empty
-        //     Mine = new JLabel("",SwingConstants.CENTER);
-        // }
+        else if(board[row][col] == 0){  //if it's 0/empty
+            Mine = new JLabel("",SwingConstants.CENTER);
+        }
         else
             Mine = new JLabel(String.valueOf(board[row][col]), SwingConstants.CENTER);
             
@@ -313,6 +309,17 @@ public class Minesweeper{
         return numOfMines;
     }
 
+    //Temporary class for indices of cells 
+    static class Cell{
+        int row;
+        int col;
+    Cell(int row, int col){
+        this.row = row;
+        this.col = col;
+        }
+    }   
+
+
     //Open Cells. If the selected cell is 0, check surroundings for more 0s using Queue
     public void openCell(int row, int col, JButton btn){
         btn.setVisible(false); //display the label
@@ -320,50 +327,63 @@ public class Minesweeper{
         System.out.println("Selected cell is " + board[row][col]);
         int selected = board[row][col];
 
-        Cell cell = new Cell();
         //Check if the selected cell is 0
         if(selected == 0){
-            //Enqueue the Starting tile into the queue
-            cell.add(selected);
-
-            //Until we reach "non-0 cell",
-            while(cell.size() != 0){
-                //Dequeue the cell to be current cell
-                int current = cell.peek();
-                cell.poll();
-
-                //Visit each unopened buttons
-                if(breadthSearchCell(current, row - 1, col - 1)) break;
-                if(breadthSearchCell(current, row - 1, col)) break;
-                if(breadthSearchCell(current, row - 1, col + 1)) break;
-
-                if(breadthSearchCell(current, row, col - 1)) break;
-                if(breadthSearchCell(current, row, col + 1)) break;
-
-                if(breadthSearchCell(current, row + 1, col - 1)) break;
-                if(breadthSearchCell(current, row + 1, col)) break;
-                if(breadthSearchCell(current, row + 1, col + 1)) break;
-            }
-
+             breadthSearchCell(row, col);
         }
         numberCell--;
     }
 
-    public boolean breadthSearchCell(int currentCell, int row, int col){
-        //Check if the button is already revealed
-        if(checkCell(row, col)){
+    //Breadth Search Algorithm
+    public boolean breadthSearchCell(int row, int col){
+        Queue<Cell> cells = new LinkedList<>();
 
+        //Enqueue the Starting tile into the queue (Don't need to mark visited because if the cell was visited, the button will be invisible)
+        cells.add(new Cell(row, col));
+
+        //Until we reach "non-0 cell", while the queue is not empty
+        while(!cells.isEmpty()){
+            //Dequeue the cell to be current cell / Display the label
+            Cell current = cells.peek();
+            
+            int x = current.row;
+            int y = current.col;
+
+            cells.remove();
+            JButton btn = buttonGrid[x][y];
+            btn.setVisible(false);
+
+            //if the current cell is non-zero, don't check the adjacent cell
+            if(board[x][y] == 0){
+                //Direction Vectors (down, up, right, left, right-bottom corner, left-bottom corner, right-top corner, left-top corner)
+                int[] dr = {0, 0, 1, -1, 1, 1, -1, -1};
+                int[] dc = {1, -1, 0, 0, 1, -1, 1, -1};
+
+                //Check the neighbour cells
+                for(int i = 0; i < dc.length; ++i){
+                    int nearX = x + dr[i];
+                    int nearY = y + dc[i];
+
+                    if(checkCell(nearX, nearY)){
+                        cells.add(new Cell(nearX, nearY));
+                    }
+                }
+            }
         }
-
         return false;
     } 
 
     //Check if the cell is valid
     public boolean checkCell(int row, int col){
-        if(row < 0 || col < 0 || row > dimension || col > dimension)
-        return false;
+        //if the cell lies out of bounds, false
+        if(row < 0 || col < 0 || row > dimension - 1 || col > dimension - 1) return false;
+
+        //if the cell is already visited, false
+        if(!buttonGrid[row][col].isVisible()) return false;
+
         return true;
     }
+
     //Initialize the board (number) 
     public void setNumber(){
         setMines(); //create mines first
