@@ -249,8 +249,12 @@ public class Minesweeper{
         else //open cells 
             openCell(row, col, btn);
 
+
     }
 
+    /* TO-DO
+        - Display Game End Panel
+    */
     public void gameEnd(boolean win){
         if(win)
             System.out.println("You Won!");
@@ -305,7 +309,6 @@ public class Minesweeper{
                 }
             }
         }
-        
         return numOfMines;
     }
 
@@ -324,14 +327,17 @@ public class Minesweeper{
     public void openCell(int row, int col, JButton btn){
         btn.setVisible(false); //display the label
 
-        System.out.println("Selected cell is " + board[row][col]);
         int selected = board[row][col];
 
         //Check if the selected cell is 0
         if(selected == 0){
              breadthSearchCell(row, col);
         }
+        //Reduce the number of cell
         numberCell--;
+
+        //if the number of cell is equal to the number of mines, player win
+        if(numberCell == mines) gameEnd(true);
     }
 
     //Breadth Search Algorithm
