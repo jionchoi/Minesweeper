@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import BFSTCells.Cell;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
@@ -16,6 +18,9 @@ import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.SwingUtilities;
+
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 public class Minesweeper{
@@ -27,7 +32,6 @@ public class Minesweeper{
 
     private Dimension frameSize = new Dimension(700, 700); //dimension for main JPanel
     private Dimension boardSize = new Dimension(400, 400); //dimension for the game JPanel
-    private Dimension numPaneSize;
 
     private int[][] board;
     private int mines;
@@ -37,10 +41,12 @@ public class Minesweeper{
     private int Y = X;
     private int width = 40;
     private int height = width;
+    private int numberCell; //Number of cell which is not a mine
+
+    private Queue<Integer> cell = new LinkedList<>(); //Queue for Breadth-First search for opening empty cells
 
     /* TO-DO
-        - Finish the Custom Grid
-        - Finish the calculation of mines in custon grid
+        - Organize the code. Consider making a function for setting the game level 
     */
     public Minesweeper(String diff){
         frame = new JFrame();
@@ -71,12 +77,8 @@ public class Minesweeper{
                 mines = 99;
                 dimension = 25;
                 break;
-
-            case "Custom Grid":
-                
-                break;
         }
-        
+        numberCell = (dimension * dimension) - mines;
         //display menu bar (timer, number of mines)
         menuBar();
 
@@ -107,6 +109,8 @@ public class Minesweeper{
 
         buttonGrid = new JButton[dimension][dimension]; //button grid
         board = new int[dimension][dimension]; //Game board to keep track of numbers and mines
+        
+        //Create a integer board with numbers
         setNumber();
 
         for(int i = 0; i < dimension; ++i){
@@ -177,7 +181,7 @@ public class Minesweeper{
 
                     //if the clicked button is not flagged
                     if(!isflagged(clicked))
-                        reveal(row, col, clicked); //remove the button and reveal the square
+                        click(row, col, clicked); //remove the button and click the square
                 }
             }
         });
@@ -236,7 +240,10 @@ public class Minesweeper{
     }
 
     //Remove the button and open the square
-    public void reveal(int row, int col, JButton btn){
+    public void click(int row, int col, JButton btn){
+        //if there is no more remaining button, player wins
+        if(numberCell == 0) gameEnd(true);
+
         int clicked = board[row][col];
         //if the clicked cell is 1000, game over
         if(clicked == 1000){
@@ -244,7 +251,8 @@ public class Minesweeper{
             btn.setVisible(false);
         }
         else //open cells 
-            openEmpty(row, col, btn);
+            openCell(row, col, btn);
+
     }
 
     public void gameEnd(boolean win){
@@ -256,6 +264,7 @@ public class Minesweeper{
 
     /* TO-DO
         - Number of Mines are wrong. Fix the loop
+        - Organize the code. Too messy
     */
     //Create mines on the board
     public void setMines(){
@@ -304,29 +313,57 @@ public class Minesweeper{
         return numOfMines;
     }
 
-    public void openEmpty(int row, int col, JButton btn){
-        int rowMin = row - 1;
-        int colMin = col - 1;
-        int rowMax = row + 1;
-        int colMax = col + 1;
+    //Open Cells. If the selected cell is 0, check surroundings for more 0s using Queue
+    public void openCell(int row, int col, JButton btn){
+        btn.setVisible(false); //display the label
 
-        if(rowMin < 0) rowMin = row;
-        if(colMin < 0) colMin = col;
-        if(rowMax == dimension) rowMax = row;
-        if(colMax == dimension) colMax = col;
+        System.out.println("Selected cell is " + board[row][col]);
+        int selected = board[row][col];
 
-            for(int i = rowMin; i < rowMax + 1; ++i){
-                for(int j = colMin; j < colMax + 1; ++j){
-                    if(checkMines(i, j) == 0){
-                        btn = buttonGrid[i][j];
-                        openEmpty(i, j, btn);
-                    }
-                }
+        Cell cell = new Cell();
+        //Check if the selected cell is 0
+        if(selected == 0){
+            //Enqueue the Starting tile into the queue
+            cell.add(selected);
+
+            //Until we reach "non-0 cell",
+            while(cell.size() != 0){
+                //Dequeue the cell to be current cell
+                int current = cell.peek();
+                cell.poll();
+
+                //Visit each unopened buttons
+                if(breadthSearchCell(current, row - 1, col - 1)) break;
+                if(breadthSearchCell(current, row - 1, col)) break;
+                if(breadthSearchCell(current, row - 1, col + 1)) break;
+
+                if(breadthSearchCell(current, row, col - 1)) break;
+                if(breadthSearchCell(current, row, col + 1)) break;
+
+                if(breadthSearchCell(current, row + 1, col - 1)) break;
+                if(breadthSearchCell(current, row + 1, col)) break;
+                if(breadthSearchCell(current, row + 1, col + 1)) break;
             }
-           
-            btn.setVisible(false);
+
+        }
+        numberCell--;
     }
 
+    public boolean breadthSearchCell(int currentCell, int row, int col){
+        //Check if the button is already revealed
+        if(checkCell(row, col)){
+
+        }
+
+        return false;
+    } 
+
+    //Check if the cell is valid
+    public boolean checkCell(int row, int col){
+        if(row < 0 || col < 0 || row > dimension || col > dimension)
+        return false;
+        return true;
+    }
     //Initialize the board (number) 
     public void setNumber(){
         setMines(); //create mines first
