@@ -117,6 +117,7 @@ public class Minesweeper{
 
         for(int i = 0; i < dimension; i++){
             for(int j = 0; j < dimension ; j++){
+                //Add Labels and Buttons to the Panel
                 setLabel(i, j);
                 setButton(i, j);
                 
@@ -146,12 +147,33 @@ public class Minesweeper{
             Mine = new JLabel("",SwingConstants.CENTER);
         }
         else
-            Mine = new JLabel(String.valueOf(board[row][col]), SwingConstants.CENTER);
+            Mine = changeColor(String.valueOf(board[row][col]));
             
         Mine.setBounds(X, Y, width, height); //set bound of the child panels because the layout of JLayeredPane is null
         boardPane.add(Mine, JLayeredPane.DEFAULT_LAYER);
             
         return false;
+    }
+
+    //Change the color of the text based on its number
+    public JLabel changeColor(String num){
+        JLabel mine = new JLabel(num, SwingConstants.CENTER);
+        switch(num){
+            case "1":
+                mine.setForeground(Color.blue);
+                break;
+            case "2":
+                mine.setForeground(new Color(26, 102, 46));
+                break;
+            case "3":
+                mine.setForeground(Color.red);
+                break;
+            case "4":
+                mine.setForeground(Color.magenta);
+                break;
+        }
+
+        return mine;
     }
 
     //Create buttons on the board 
@@ -254,8 +276,11 @@ public class Minesweeper{
         - Display Game End Panel
     */
     public void gameEnd(boolean win){
-        if(win)
-            System.out.println("You Won!");
+        JPanel endPane = new JPanel();
+        JLabel endLabel;
+        if(win){
+            endLabel = new JLabel();
+        }
         else
             System.out.println("Game Over");
     }
