@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
@@ -38,13 +37,13 @@ public class Minesweeper{
     private int mines;
     private static int dimension; //dimension of the game board
     private JButton[][] buttonGrid;
-    private int X = 0;
+    private int X = 0; //X position of JButtons and JLabels
     private int Y = X;
-    private int width = 40;
+    private int width = 40; //Width of JButtons and JLabels
     private int height = width;
     private int numberCell; //Number of cell which is not a mine
 
-    private boolean[][] vis;
+    private boolean[][] vis; //visited cells
     /* TO-DO
         - Organize the code. Consider making a function for setting the game level 
     */
@@ -57,28 +56,13 @@ public class Minesweeper{
 
         frame.add(pane);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle("Minesweeper Game");
+        frame.setTitle("Minesweeper");
         
+        //Set Difficulty
+        setDiff(diff);
 
-        switch(diff){
-            case "Easy":
-                mines = 10;
-                dimension = 10;
-                //set a new frame size based on the level
-                frame.setSize(500, 500);
-                break;
-
-            case "Medium":
-                mines = 40;
-                dimension = 18;
-                break;
-
-            case "Hard":
-                mines = 99;
-                dimension = 25;
-                break;
-        }
         numberCell = (dimension * dimension);
+
         //display menu bar (timer, number of mines)
         menuBar();
 
@@ -91,6 +75,28 @@ public class Minesweeper{
         frame.setMaximumSize(frameSize);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    //Set Difficulty of the game
+    public void setDiff(String level){
+        switch(level){
+            case "Easy":
+                mines = 10;
+                dimension = 10;
+                //set a new frame size based on the level
+                frame.setSize(500, 500);
+                break;
+
+            case "Medium":
+                mines = 40;
+                dimension = 16;
+                break;
+
+            case "Expert":
+                mines = 99;
+                dimension = 25;
+                break;
+        }
     }
 
     //Menu bar on top of the board (timer, number of mines)
