@@ -18,7 +18,8 @@ public class Menu{
     private JFrame frame;
     private JPanel pane;
     private Dimension size = new Dimension(1080, 720);
-
+    private Dimension frameSize = new Dimension(500, 500);
+    private String level;
     private String selected;
     //Constructor: Create the Menu Frame
     public Menu(){
@@ -28,32 +29,31 @@ public class Menu{
         pane.setBorder(new EmptyBorder(50, 50, 50, 50));
         pane.setLayout(null);
 
-        frame.add(pane, BorderLayout.CENTER);
+        frame.add(pane);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Minesweeper");
-        frame.pack();
-        frame.setVisible(true);
+        
 
+        // frame.add(pane, BorderLayout.CENTER);
+        
         JLabel diffLabel = new JLabel("Choose Difficulty:");
         diffLabel.setFont(new Font("Serief", Font.BOLD, 20));
         diffLabel.setBounds(100, 30, 300, 30);
         pane.add(diffLabel);
 
         //grid selector
-        String[] gridSelector = {"Easy", "Medium", "Hard"};
+        String[] gridSelector = {"Easy", "Medium", "Expert"};
         JComboBox<String> jComboBox = new JComboBox<>(gridSelector);
-        jComboBox.setBounds(280, 30, 100, 30);
-        selected = String.valueOf(jComboBox.getSelectedItem());
 
-//        //get the changed level if the user changed
-//        jComboBox.addActionListener(new ItemListener(){
-//            @Override
-//            public void itemStateChanged(ItemEvent e) {
-//                if(e.getStateChange() == ItemEvent.SELECTED){
-//                    selected = String.valueOf(jComboBox.getSelectedItem());
-//                }
-//            }
-//        });
+        jComboBox.setBounds(280, 30, 100, 30);
+
+
+        //get the changed level if the user changed
+        jComboBox.addItemListener(new ItemListener(){
+            public void itemStateChanged(ItemEvent e){
+                selected = (String)e.getItem();
+            }
+        });
 
         pane.add(jComboBox);
 
@@ -61,18 +61,17 @@ public class Menu{
         TO-DO
         - Finish the preview
         */
+        // //if the selected item/level is custom grid, display the custom grid setting
+        // switch(selected){
+        //     //grid preview
+        //     case "Easy":
 
-        //if the selected item/level is custom grid, display the custom grid setting
-        switch(selected){
-            //grid preview
-            case "Easy":
-
-                break;
-            case "Medium":
-                break;
-            case "Hard":
-                break;
-        }
+        //         break;
+        //     case "Medium":
+        //         break;
+        //     case "Hard":
+        //         break;
+        // }
 
         JButton startBtn = new JButton("Start!");
         startBtn.setBounds(125, 380, 250, 50);
@@ -80,23 +79,24 @@ public class Menu{
         startBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //set the menu frame invisible and start the game
                 frame.setVisible(false);
-                Minesweeper game = new Minesweeper(selected);
-                // System.out.println(selected);
+                new Minesweeper(selected); //Start the game
             }
         });
 
-        frame.setSize(500, 500);
-        frame.setMaximumSize(size);
+        frame.setPreferredSize(frameSize);
+        frame.setResizable(false);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static void main(String[] args) {
         //launch the program
-        try{
+        try{   
             new Menu();
         }catch(Exception e){
             e.printStackTrace();
         }
     }
 }
+

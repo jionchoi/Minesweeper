@@ -326,6 +326,10 @@ public class Minesweeper{
         }
     }
 
+    //If user wins the game, remove the flag and display mines
+    public void removeFlags(){
+
+    }
 
     /* TO-DO
         - Number of Mines are wrong. Fix the loop
