@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
@@ -16,6 +18,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
 
 import javax.swing.SwingUtilities;
 
@@ -42,12 +45,13 @@ public class Minesweeper{
     private int width = 40; //Width of JButtons and JLabels
     private int height = width;
     private int numberCell; //Number of cell which is not a mine
-
+    private String level;
     private boolean[][] vis; //visited cells
     /* TO-DO
         - Organize the code. Consider making a function for setting the game level 
     */
     public Minesweeper(String diff){
+        level = diff;
         frame = new JFrame();
 
         pane = new JPanel();
@@ -60,6 +64,9 @@ public class Minesweeper{
         
         //Set Difficulty
         setDiff(diff);
+
+        Image icon = Toolkit.getDefaultToolkit().getImage("Minesweeper/bin/images/mine.png"); //for Window OS
+        frame.setIconImage(icon);    
 
         numberCell = (dimension * dimension);
 
@@ -90,6 +97,8 @@ public class Minesweeper{
             case "Medium":
                 mines = 40;
                 dimension = 16;
+                boardSize = new Dimension(640, 640); //increase the board size 
+                frame.setSize(800,800);
                 break;
 
             case "Expert":
@@ -99,14 +108,17 @@ public class Minesweeper{
         }
     }
 
-    //Menu bar on top of the board (timer, number of mines)
+    //Menu bar on top of the board (timer, number of mines, restart)
     public void menuBar(){
         menuPane = new JPanel();
-        pane.add(menuPane);
+        // menuPane.setLayout();    
 
         //JLabel for number of mines/flags
         JLabel numOfMines = new JLabel(String.valueOf(mines));
         menuPane.add(numOfMines);
+
+        pane.add(menuPane);
+
     }
 
     //Initiallizing the board
@@ -148,6 +160,7 @@ public class Minesweeper{
         JLabel Mine;
         if(board[row][col] == 1000){ //if it's bomb
             Mine = new JLabel(mine, SwingConstants.CENTER);
+            
         }
         else if(board[row][col] == 0){  //if it's 0/empty
             Mine = new JLabel("",SwingConstants.CENTER);
@@ -293,31 +306,36 @@ public class Minesweeper{
 
         if(win){
             endLabel = new JLabel();
-            System.out.println("Player Wins!");
             playAgain = new JButton("Play Again"); //Play Again Button
         }
         else{
             endLabel = new JLabel("Game Over");
             playAgain = new JButton("Try Again"); //Try Again Button
-            System.out.println("Game Over");
         }
+
+        playAgain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restart();
+            }
+        });
 
         //Add JLabel and JButton to the Panel
         endPane.add(endLabel);
         endPane.add(playAgain);
         
-       
         endPane.setBounds(100, 100, 400, 300);
         boardPane.add(endPane, JLayeredPane.MODAL_LAYER);
 
-        //Disable buttons
+        //Disable buttons and remove flags to display the mine
         disableButtons();
+        removeFlags();
     }
 
     //Disable remaining buttons
     public void disableButtons(){
-         //loop through until all mines are created
-         for(int i = 0; i < dimension; ++i){
+        //loop through the button grid
+        for(int i = 0; i < dimension; ++i){
             for(int j = 0; j < dimension; ++j){
                 if(buttonGrid[i][j].isVisible()){
                     buttonGrid[i][j].setEnabled(false);
@@ -328,11 +346,26 @@ public class Minesweeper{
 
     //If user wins the game, remove the flag and display mines
     public void removeFlags(){
+        //loop through the button grid
+        for(int i = 0; i < dimension; ++i){
+            for(int j = 0; j < dimension; ++j){
+                JButton btn = buttonGrid[i][j];
+                if(isflagged(btn)){
+                    unflag(btn); //unflag the button
+                }
+            }
+        }
+    }
 
+    //reset and restart the game
+    public void restart(){
+        frame.setVisible(false);
+
+        new Minesweeper(level);
     }
 
     /* TO-DO
-        - Number of Mines are wrong. Fix the loop
+        - Number of Mines are wrong. Fix the loop (Use randomly generated i and j until newMineNum is 0)
         - Organize the code. Too messy
     */
     //Create mines on the board

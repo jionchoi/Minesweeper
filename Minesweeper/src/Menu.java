@@ -8,6 +8,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -19,12 +21,14 @@ public class Menu{
     private JPanel pane;
     private Dimension size = new Dimension(1080, 720);
     private Dimension frameSize = new Dimension(500, 500);
-    private String level;
-    private String selected;
+    private String selected = "Easy"; //Default level is easy
     //Constructor: Create the Menu Frame
     public Menu(){
         frame = new JFrame();
 
+        Image icon = Toolkit.getDefaultToolkit().getImage("Minesweeper/bin/images/mine.png");    
+        frame.setIconImage(icon);   
+        
         pane = new JPanel();
         pane.setBorder(new EmptyBorder(50, 50, 50, 50));
         pane.setLayout(null);
@@ -47,11 +51,11 @@ public class Menu{
 
         jComboBox.setBounds(280, 30, 100, 30);
 
-
         //get the changed level if the user changed
         jComboBox.addItemListener(new ItemListener(){
             public void itemStateChanged(ItemEvent e){
                 selected = (String)e.getItem();
+                showPrev(selected);
             }
         });
 
@@ -88,6 +92,11 @@ public class Menu{
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    //Show the preview of the game
+    public void showPrev(String level){
+
     }
 
     public static void main(String[] args) {
