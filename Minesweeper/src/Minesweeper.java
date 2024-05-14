@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -40,6 +41,7 @@ public class Minesweeper{
     private int mines;
     private static int dimension; //dimension of the game board
     private JButton[][] buttonGrid;
+    private JLabel numOfMines;
     private int X = 0; //X position of JButtons and JLabels
     private int Y = X;
     private int width = 40; //Width of JButtons and JLabels
@@ -111,14 +113,21 @@ public class Minesweeper{
     //Menu bar on top of the board (timer, number of mines, restart)
     public void menuBar(){
         menuPane = new JPanel();
-        // menuPane.setLayout();    
+        menuPane.setLayout(new FlowLayout());    
 
         //JLabel for number of mines/flags
-        JLabel numOfMines = new JLabel(String.valueOf(mines));
+        numOfMines = new JLabel(String.valueOf(mines));
         menuPane.add(numOfMines);
 
+        JButton playAgain = new JButton();
+        playAgain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restart();
+            }
+        });
+        
         pane.add(menuPane);
-
     }
 
     //Initiallizing the board
@@ -297,9 +306,6 @@ public class Minesweeper{
         - Display Game End Panel
     */
     public void gameEnd(boolean win){
-        
-        JPanel endPane = new JPanel();
-        endPane.setLayout(new BoxLayout(endPane, BoxLayout.Y_AXIS)); //sorts panels horizontally 
 
         JLabel endLabel;
         JButton playAgain;
@@ -319,13 +325,6 @@ public class Minesweeper{
                 restart();
             }
         });
-
-        //Add JLabel and JButton to the Panel
-        endPane.add(endLabel);
-        endPane.add(playAgain);
-        
-        endPane.setBounds(100, 100, 400, 300);
-        boardPane.add(endPane, JLayeredPane.MODAL_LAYER);
 
         //Disable buttons and remove flags to display the mine
         disableButtons();
