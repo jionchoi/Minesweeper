@@ -17,11 +17,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -41,6 +43,7 @@ public class Minesweeper{
     private int mines;
     private static int dimension; //dimension of the game board
     private JButton[][] buttonGrid;
+    private JButton playAgain; //PlayAgain button on the menu bar
     private JLabel numOfMines;
     private int X = 0; //X position of JButtons and JLabels
     private int Y = X;
@@ -49,9 +52,10 @@ public class Minesweeper{
     private int numberCell; //Number of cell which is not a mine
     private String level;
     private boolean[][] vis; //visited cells
-    /* TO-DO
-        - Organize the code. Consider making a function for setting the game level 
-    */
+
+    private Timer timer;
+    private int elapsed;
+    private JLabel seconds;
     public Minesweeper(String diff){
         level = diff;
         frame = new JFrame();
@@ -78,6 +82,15 @@ public class Minesweeper{
         //Initiallize the game board
         createBoard(dimension);
 
+        //Start the timer when the game starts
+        timer = new Timer(1000,new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                elapsed += 1000;
+                updateTimer();
+            }
+        });
+        timer.start();
+
         vis = new boolean[dimension][dimension];
         //Final setup for the main Frame
         frame.setResizable(false);
@@ -102,30 +115,55 @@ public class Minesweeper{
                 boardSize = new Dimension(640, 640); //increase the board size 
                 frame.setSize(800,800);
                 break;
-
-            case "Expert":
-                mines = 99;
-                dimension = 25;
-                break;
         }
+    }
+
+    //Update the timer
+    private void updateTimer(){
+        int timeSecond = (elapsed % 60000) / 1000;
+        String time = String.format("%02d", timeSecond);
+        seconds.setText(time);
     }
 
     //Menu bar on top of the board (timer, number of mines, restart)
     public void menuBar(){
+        int hgap;
+        if(level.equals("Easy"))
+            hgap = 60;
+        else
+            hgap = 120;
+
         menuPane = new JPanel();
-        menuPane.setLayout(new FlowLayout());    
+        menuPane.setLayout(new FlowLayout(FlowLayout.CENTER, hgap, 10));    
 
-        //JLabel for number of mines/flags
-        numOfMines = new JLabel(String.valueOf(mines));
-        menuPane.add(numOfMines);
+        seconds = new JLabel("00");
+        seconds.setFont(new Font("Arial", Font.PLAIN, 30));
+        seconds.setForeground(Color.red);
 
-        JButton playAgain = new JButton();
+        menuPane.add(seconds);
+
+        //Play Again Button
+        playAgain = new JButton();
+        ImageIcon face = resizeIcon("Minesweeper/bin/images/happiness.png", 40, 40);
+        playAgain.setIcon(face);
+
         playAgain.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 restart();
+                
             }
         });
+        
+        menuPane.add(playAgain);
+
+        //JLabel for number of mines/flags
+        numOfMines = new JLabel(String.valueOf(mines));
+        numOfMines.setFont(new Font("Arial", Font.PLAIN, 30));
+        numOfMines.setForeground(Color.red);
+
+        menuPane.add(numOfMines);
+
         
         pane.add(menuPane);
     }
@@ -161,10 +199,7 @@ public class Minesweeper{
     //Create labels on the board
     public boolean setLabel(int row, int col){
         //resize the image
-        ImageIcon mine = new ImageIcon("Minesweeper/bin/images/mine.png"); // load the image to a imageIcon
-        Image image = mine.getImage(); // transform it 
-        Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-        mine = new ImageIcon(newimg);  // transform it back
+        ImageIcon mine = resizeIcon("Minesweeper/bin/images/mine.png", 30, 30);
 
         JLabel Mine;
         if(board[row][col] == 1000){ //if it's bomb
@@ -267,11 +302,7 @@ public class Minesweeper{
 
     //mark the button
     public void flag(JButton btn){
-        //resize the image
-        ImageIcon flag = new ImageIcon("Minesweeper/bin/images/red-flag.png"); // load the image to a imageIcon
-        Image image = flag.getImage(); // transform it 
-        Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-        flag = new ImageIcon(newimg);  // transform it back
+        ImageIcon flag = resizeIcon("Minesweeper/bin/images/red-flag.png", 30, 30);
         
         btn.setIcon(flag);
     }
@@ -306,26 +337,18 @@ public class Minesweeper{
         - Display Game End Panel
     */
     public void gameEnd(boolean win){
-
-        JLabel endLabel;
-        JButton playAgain;
+        ImageIcon face;
 
         if(win){
-            endLabel = new JLabel();
-            playAgain = new JButton("Play Again"); //Play Again Button
+            face = resizeIcon("Minesweeper/bin/images/smile.png", 40, 40);
         }
         else{
-            endLabel = new JLabel("Game Over");
-            playAgain = new JButton("Try Again"); //Try Again Button
+            
+            face = resizeIcon("Minesweeper/bin/images/hate.png", 40, 40);
         }
 
-        playAgain.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                restart();
-            }
-        });
-
+        playAgain.setIcon(face);
+        
         //Disable buttons and remove flags to display the mine
         disableButtons();
         removeFlags();
@@ -520,4 +543,13 @@ public class Minesweeper{
         return rand.nextInt(max) + min;
     }  
     
+    //Resize the image
+    public ImageIcon resizeIcon(String fileName, int width, int height){
+        //resize the image
+        ImageIcon flag = new ImageIcon(fileName); // load the image to a imageIcon
+        Image image = flag.getImage(); // transform it 
+        Image newimg = image.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+
+        return new ImageIcon(newimg);  // transform it back
+    }
 }

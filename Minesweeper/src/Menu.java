@@ -46,7 +46,7 @@ public class Menu{
         pane.add(diffLabel);
 
         //grid selector
-        String[] gridSelector = {"Easy", "Medium", "Expert"};
+        String[] gridSelector = {"Easy", "Medium"};
         JComboBox<String> jComboBox = new JComboBox<>(gridSelector);
 
         jComboBox.setBounds(280, 30, 100, 30);
@@ -56,26 +56,13 @@ public class Menu{
             public void itemStateChanged(ItemEvent e){
                 selected = (String)e.getItem();
                 showPrev(selected);
+                
             }
         });
 
         pane.add(jComboBox);
 
-        /*
-        TO-DO
-        - Finish the preview
-        */
-        // //if the selected item/level is custom grid, display the custom grid setting
-        // switch(selected){
-        //     //grid preview
-        //     case "Easy":
-
-        //         break;
-        //     case "Medium":
-        //         break;
-        //     case "Hard":
-        //         break;
-        // }
+        
 
         JButton startBtn = new JButton("Start!");
         startBtn.setBounds(125, 380, 250, 50);
@@ -96,7 +83,21 @@ public class Menu{
 
     //Show the preview of the game
     public void showPrev(String level){
+        /*
+        TO-DO
+        - Finish the preview
+        */
+        // //if the selected item/level is custom grid, display the custom grid setting
+        // switch(selected){
+        //     //grid preview
+        //     case "Easy":
 
+        //         break;
+        //     case "Medium":
+        //         break;
+        //     case "Hard":
+        //         break;
+        // }
     }
 
     public static void main(String[] args) {
