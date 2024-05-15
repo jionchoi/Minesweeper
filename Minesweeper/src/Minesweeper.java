@@ -56,6 +56,7 @@ public class Minesweeper{
     private Timer timer;
     private int elapsed;
     private JLabel seconds;
+
     public Minesweeper(String diff){
         level = diff;
         frame = new JFrame();
@@ -125,6 +126,17 @@ public class Minesweeper{
         seconds.setText(time);
     }
 
+    //Update the number of remaining Mines
+    private void updateMine(Boolean increase){
+        if(increase)
+            mines++;
+        else
+            mines--;
+
+        String mineNum = String.format("%02d", mines);
+        numOfMines.setText(mineNum);
+    }
+
     //Menu bar on top of the board (timer, number of mines, restart)
     public void menuBar(){
         int hgap;
@@ -151,7 +163,6 @@ public class Minesweeper{
             @Override
             public void actionPerformed(ActionEvent e) {
                 restart();
-                
             }
         });
         
@@ -254,10 +265,14 @@ public class Minesweeper{
                 //if it's right click, flag/unflag
                 if(SwingUtilities.isRightMouseButton(e)){
                     //mark the button
-                    if(isflagged(clicked)) 
+                    if(isflagged(clicked)){
                         unflag(clicked);
-                    else 
+                        updateMine(true);
+                    }
+                    else {
                         flag(clicked);
+                        updateMine(false);
+                    }
                 }
                 else{
                     int row = btnPositionRow(clicked);
@@ -333,9 +348,7 @@ public class Minesweeper{
             openCell(row, col, btn);
     }
 
-    /* TO-DO
-        - Display Game End Panel
-    */
+    //Change the Icon of the JButton on the menu bar, end game
     public void gameEnd(boolean win){
         ImageIcon face;
 
@@ -343,12 +356,13 @@ public class Minesweeper{
             face = resizeIcon("Minesweeper/bin/images/smile.png", 40, 40);
         }
         else{
-            
             face = resizeIcon("Minesweeper/bin/images/hate.png", 40, 40);
         }
 
         playAgain.setIcon(face);
         
+        //Stop the timer
+        timer.stop();
         //Disable buttons and remove flags to display the mine
         disableButtons();
         removeFlags();
