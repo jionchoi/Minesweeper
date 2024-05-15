@@ -46,7 +46,7 @@ public class Menu{
         pane.add(diffLabel);
 
         //grid selector
-        String[] gridSelector = {"Easy", "Medium"};
+        String[] gridSelector = {"Easy", "Hard"};
         JComboBox<String> jComboBox = new JComboBox<>(gridSelector);
 
         jComboBox.setBounds(280, 30, 100, 30);

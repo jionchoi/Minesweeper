@@ -13,12 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 
@@ -40,11 +38,8 @@ public class Minesweeper{
     private Dimension boardSize = new Dimension(400, 400); //dimension for the game JPanel
 
     private int[][] board;
-    private int mines;
     private static int dimension; //dimension of the game board
     private JButton[][] buttonGrid;
-    private JButton playAgain; //PlayAgain button on the menu bar
-    private JLabel numOfMines;
     private int X = 0; //X position of JButtons and JLabels
     private int Y = X;
     private int width = 40; //Width of JButtons and JLabels
@@ -52,6 +47,10 @@ public class Minesweeper{
     private int numberCell; //Number of cell which is not a mine
     private String level;
     private boolean[][] vis; //visited cells
+
+    private int mines;
+    private JButton playAgain; //PlayAgain button on the menu bar
+    private JLabel numOfMines;
 
     private Timer timer;
     private int elapsed;
@@ -65,6 +64,7 @@ public class Minesweeper{
         pane.setBorder(new EmptyBorder(50, 50, 50, 50));
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS)); //sorts panels horizontally 
 
+        //Set basic frame settings
         frame.add(pane);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Minesweeper");
@@ -75,6 +75,7 @@ public class Minesweeper{
         Image icon = Toolkit.getDefaultToolkit().getImage("Minesweeper/bin/images/mine.png"); //for Window OS
         frame.setIconImage(icon);    
 
+        //Number of Cells is dimension*dimension
         numberCell = (dimension * dimension);
 
         //display menu bar (timer, number of mines)
@@ -110,7 +111,7 @@ public class Minesweeper{
                 frame.setSize(500, 500);
                 break;
 
-            case "Medium":
+            case "Hard":
                 mines = 40;
                 dimension = 16;
                 boardSize = new Dimension(640, 640); //increase the board size 
@@ -144,38 +145,38 @@ public class Minesweeper{
             hgap = 60;
         else
             hgap = 120;
-
+        
         menuPane = new JPanel();
         menuPane.setLayout(new FlowLayout(FlowLayout.CENTER, hgap, 10));    
 
+        //Label and Button
+        numOfMines = new JLabel(String.valueOf(mines));
+        playAgain = new JButton(); //Play Again Button
         seconds = new JLabel("00");
-        seconds.setFont(new Font("Arial", Font.PLAIN, 30));
-        seconds.setForeground(Color.red);
 
-        menuPane.add(seconds);
+        //JLabel for number of mines/flags
+        numOfMines.setFont(new Font("Arial", Font.PLAIN, 30));
+        numOfMines.setForeground(Color.red);
 
-        //Play Again Button
-        playAgain = new JButton();
+        //Button Icon (normal face)
         ImageIcon face = resizeIcon("Minesweeper/bin/images/happiness.png", 40, 40);
         playAgain.setIcon(face);
-
         playAgain.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 restart();
             }
         });
-        
+
+        //Timer Label
+        seconds.setFont(new Font("Arial", Font.PLAIN, 30));
+        seconds.setForeground(Color.red);
+
+        //Add them to the panel
+        menuPane.add(seconds);
         menuPane.add(playAgain);
-
-        //JLabel for number of mines/flags
-        numOfMines = new JLabel(String.valueOf(mines));
-        numOfMines.setFont(new Font("Arial", Font.PLAIN, 30));
-        numOfMines.setForeground(Color.red);
-
         menuPane.add(numOfMines);
 
-        
         pane.add(menuPane);
     }
 
@@ -196,7 +197,6 @@ public class Minesweeper{
                 //Add Labels and Buttons to the Panel
                 setLabel(i, j);
                 setButton(i, j);
-                
                 X += width; //increase x 
             }
             Y += width; //increase y
@@ -205,7 +205,6 @@ public class Minesweeper{
         //add the Game Board Panel to the Main Panel
         pane.add(boardPane);
     }
-
 
     //Create labels on the board
     public boolean setLabel(int row, int col){
@@ -237,7 +236,7 @@ public class Minesweeper{
                 mine.setForeground(Color.blue);
                 break;
             case "2":
-                mine.setForeground(new Color(26, 102, 46));
+                mine.setForeground(new Color(26, 102, 46)); //Green
                 break;
             case "3":
                 mine.setForeground(Color.red);
@@ -253,7 +252,6 @@ public class Minesweeper{
     //Create buttons on the board 
     public void setButton(int row, int col){
         buttonGrid[row][col] = new JButton();
-        // buttonGrid[i][j].setHorizontalAlignment(SwingConstants.VERTICAL);
         buttonGrid[row][col].addMouseListener(new MouseAdapter() {
             @Override //Button Mouse Listener
             public void mousePressed(MouseEvent e) {
@@ -288,9 +286,6 @@ public class Minesweeper{
         boardPane.add(buttonGrid[row][col], JLayeredPane.PALETTE_LAYER); //add the button to the board JPanel
     }
 
-    /* TO-DO
-        - Organize the code (Maybe just two return value in one function using like vector or list)
-    */
     //Find the coordinate(row) of the clicked button
     public int btnPositionRow(JButton btn){
         for(int i = 0; i < dimension; ++i){
@@ -400,24 +395,18 @@ public class Minesweeper{
         new Minesweeper(level);
     }
 
-    /* TO-DO
-        - Number of Mines are wrong. Fix the loop (Use randomly generated i and j until newMineNum is 0)
-        - Organize the code. Too messy
-    */
     //Create mines on the board
-    public void setMines(){
+    private void setMines(){
         int newMineNum = mines;
 
-        //loop through until all mines are created
-        for(int i = 0; i < dimension; ++i){
-            for(int j = 0; j < dimension; ++j){
-                if(newMineNum == 0) return;
-                if(randNum(0,10) == 3){
-                    if(board[i][j] != 1000){
-                        board[i][j] = 1000; //mines are indicated as "1000"
-                        newMineNum--;
-                    }
-                }
+        while(newMineNum > 0){
+            int i = randNum(0, dimension);
+            int j = randNum(0, dimension);
+            
+            //if the selected board has a mine already, do not reduce the number of mines
+            if(board[i][j] != 1000) {
+                newMineNum--;
+                board[i][j] = 1000; //mines are indicated as "1000"
             }
         }
     }
@@ -551,10 +540,11 @@ public class Minesweeper{
         }
     }
 
-    //Random number generator
+    //Random number generator (Max is exclusive)
     public int randNum(int min, int max){
         Random rand = new Random();
-        return rand.nextInt(max) + min;
+        System.out.println("random Number is" + (rand.nextInt(max - min) + min) );
+        return rand.nextInt(max - min) + min;
     }  
     
     //Resize the image
