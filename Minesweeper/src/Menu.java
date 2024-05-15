@@ -78,6 +78,7 @@ public class Menu{
         frame.setPreferredSize(frameSize);
         frame.setResizable(false);
         frame.pack();
+        frame.setLocationRelativeTo(null); //Open the frame in center screen
         frame.setVisible(true);
     }
 

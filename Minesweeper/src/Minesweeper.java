@@ -38,6 +38,7 @@ public class Minesweeper{
     private Dimension boardSize = new Dimension(400, 400); //dimension for the game JPanel
 
     private int[][] board;
+    private int mines;
     private static int dimension; //dimension of the game board
     private JButton[][] buttonGrid;
     private int X = 0; //X position of JButtons and JLabels
@@ -48,7 +49,7 @@ public class Minesweeper{
     private String level;
     private boolean[][] vis; //visited cells
 
-    private int mines;
+    private int mineReduce;
     private JButton playAgain; //PlayAgain button on the menu bar
     private JLabel numOfMines;
 
@@ -98,6 +99,7 @@ public class Minesweeper{
         frame.setResizable(false);
         frame.setMaximumSize(frameSize);
         frame.pack();
+        frame.setLocationRelativeTo(null); //Open the frame in center screen
         frame.setVisible(true);
     }
 
@@ -118,23 +120,24 @@ public class Minesweeper{
                 frame.setSize(800,800);
                 break;
         }
+        mineReduce = mines; //Set number of mines for the menu bar
     }
 
     //Update the timer
     private void updateTimer(){
-        int timeSecond = (elapsed % 60000) / 1000;
-        String time = String.format("%02d", timeSecond);
+        int timeSecond = (elapsed) / 1000;
+        String time = String.format("%03d", timeSecond); //%05 means upto 5 digits, and reset it to 0 and "d" means it's integer
         seconds.setText(time);
     }
 
     //Update the number of remaining Mines
     private void updateMine(Boolean increase){
         if(increase)
-            mines++;
+            mineReduce++;
         else
-            mines--;
+            mineReduce--;
 
-        String mineNum = String.format("%02d", mines);
+        String mineNum = String.format("%03d", mineReduce);
         numOfMines.setText(mineNum);
     }
 
@@ -142,17 +145,18 @@ public class Minesweeper{
     public void menuBar(){
         int hgap;
         if(level.equals("Easy"))
-            hgap = 60;
+            hgap = 50;
         else
-            hgap = 120;
+            hgap = 100;
         
         menuPane = new JPanel();
         menuPane.setLayout(new FlowLayout(FlowLayout.CENTER, hgap, 10));    
 
         //Label and Button
-        numOfMines = new JLabel(String.valueOf(mines));
+        String mineNum = String.format("%03d", mines);
+        numOfMines = new JLabel(mineNum);
         playAgain = new JButton(); //Play Again Button
-        seconds = new JLabel("00");
+        seconds = new JLabel("000");
 
         //JLabel for number of mines/flags
         numOfMines.setFont(new Font("Arial", Font.PLAIN, 30));
@@ -330,8 +334,8 @@ public class Minesweeper{
 
     //Remove the button and open the square
     public void click(int row, int col, JButton btn){
-        //if there is no more remaining button, player wins
-        if(numberCell == 0) gameEnd(true);
+        // //if there is no more remaining button, player wins
+        // if(numberCell == 0) gameEnd(true);
 
         int clicked = board[row][col];
         //if the clicked cell is 1000, game over
@@ -358,6 +362,7 @@ public class Minesweeper{
         
         //Stop the timer
         timer.stop();
+        updateTimer();
         //Disable buttons and remove flags to display the mine
         disableButtons();
         removeFlags();
@@ -452,7 +457,6 @@ public class Minesweeper{
     //Open Cells. If the selected cell is 0, check surroundings for more 0s using Queue
     public void openCell(int row, int col, JButton btn){
         int selected = board[row][col];
-
         //Check if the selected cell is 0
         if(selected == 0){
             breadthSearchCell(row, col);
@@ -543,7 +547,6 @@ public class Minesweeper{
     //Random number generator (Max is exclusive)
     public int randNum(int min, int max){
         Random rand = new Random();
-        System.out.println("random Number is" + (rand.nextInt(max - min) + min) );
         return rand.nextInt(max - min) + min;
     }  
     
