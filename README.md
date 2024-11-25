@@ -8,7 +8,7 @@ Minesweeper game built in Java using Java swing
             cd Minesweeper
             cd src
       ```
-2. Run the application
+2. Run the application:
          ```bash
                java Menu
          ```
