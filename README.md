@@ -3,8 +3,13 @@ Minesweeper game built in Java using Java swing
 
 ## **Setup**
 1. Clone this repository:
-      ```bash git clone https://github.com/jionchoi/Minesweeper.git
-      cd Minesweeper
-      cd src
+      ```bash
+            git clone https://github.com/jionchoi/Minesweeper.git
+            cd Minesweeper
+            cd src
       ```
-4. 
+2. Run the application
+         ```bash
+               java Menu
+         ```
+3. Choose difficulty and Play!
