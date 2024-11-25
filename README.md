@@ -10,6 +10,7 @@ Minesweeper game built in Java using Java swing
       ```
 2. Run the application:
       ```
+      javac Menu.java
       java Menu
       ```
 4. Choose difficulty and Play!
